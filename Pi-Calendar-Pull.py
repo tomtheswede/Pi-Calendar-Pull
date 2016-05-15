@@ -99,7 +99,6 @@ def main():
 
 
 while True:
-
     if time.strftime('%H:%M:%S')=="03:02:00":
         resetTrigger=True
     if time.strftime('%H:%M:%S')=="03:02:02" and resetTrigger==True:
