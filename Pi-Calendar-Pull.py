@@ -73,7 +73,7 @@ def main():
         events = eventsResult.get('items', [])
         if not events:
             print('No upcoming events found.')
-        text_file = open("CalendarOutput.txt", "wb")
+        text_file = open("calendarOutput.txt", "wb")
         # text_file.write(bytes('Updated '+now[:-8]+'\n','UTF-8'))
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
@@ -101,12 +101,13 @@ def main():
     except httplib2.ServerNotFoundError:
         print("!---- Looks like there's no internet connection just now. Wait till tomorrow.")
     
-
+triggerTime="02:11"
+print("Waiting till",triggerTime, "for calendar update.")
 
 while True:
-    if time.strftime('%H:%M:%S')=="03:20:00":
+    if time.strftime('%H:%M:%S')==triggerTime+":00":
         resetTrigger=True
-    if time.strftime('%H:%M:%S')=="03:20:02" and resetTrigger==True:
+    if time.strftime('%H:%M:%S')==triggerTime+":02" and resetTrigger==True:
         print("Checking at " + time.strftime('%H:%M'))
         main()
         print("--- Sleeping a bit")
