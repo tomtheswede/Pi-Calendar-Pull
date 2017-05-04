@@ -65,43 +65,45 @@ def main():
     service = discovery.build('calendar', 'v3', http=http)
 
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 15 events')
+    print('Getting the upcoming 20 events')
     try:
         eventsResult = service.events().list(
-            calendarId='l3mvqk399k73ehoais4bu6lc74@group.calendar.google.com', timeMin=now, maxResults=15, singleEvents=True,
+            calendarId='l3mvqk399k73ehoais4bu6lc74@group.calendar.google.com', timeMin=now, maxResults=20, singleEvents=True,
             orderBy='startTime').execute()
         events = eventsResult.get('items', [])
         if not events:
             print('No upcoming events found.')
-        text_file = open("calendarOutput.txt", "wb")
+        text_file = open("scheduledActions.txt", "wb") #May want to use a check on the msg type to only overwrite calendar tasks
         # text_file.write(bytes('Updated '+now[:-8]+'\n','UTF-8'))
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
-            start = start.replace("T"," ")
-            start = start[:-6]
+            start = start[:22] + start[-2:] #Trims the last colon
+            start = datetime.datetime.strptime(start,'%Y-%m-%dT%H:%M:%S%z')
+            start = int(time.mktime(start.timetuple()))
             end = event['end'].get('dateTime', event['end'].get('date'))
-            end = end.replace("T"," ")
-            end = end[:-6]
+            end = end[:22] + end[-2:] #Trims the last colon
+            end = datetime.datetime.strptime(end,'%Y-%m-%dT%H:%M:%S%z')
+            end = int(time.mktime(end.timetuple()))
             description = event['description']
             if description.count(',')==5:
                 desc1=description.split(",")[0] + "," + description.split(",")[1] + "," + description.split(",")[2]
                 print(start,desc1)
-                writeString=start+','+desc1+"\n"
+                writeString=str(start)+','+desc1+"\n"
                 text_file.write(bytes(writeString,'UTF-8'))
                 desc2=description.split(",")[3] + "," + description.split(",")[4] + "," + description.split(",")[5]
                 print(end,desc2)
-                writeString=end+','+desc2+"\n"
+                writeString=str(end)+','+desc2+"\n"
                 text_file.write(bytes(writeString,'UTF-8'))
             else:
                 print(start, description) #event['summary'] event['location']
-                writeString=start+','+description+"\n"
+                writeString=str(start)+','+description+"\n"
                 text_file.write(bytes(writeString,'UTF-8'))
         text_file.close()
         print('Calendar read complete.')
     except httplib2.ServerNotFoundError:
         print("!---- Looks like there's no internet connection just now. Wait till tomorrow.")
     
-triggerTime="02:11"
+triggerTime="02:39"
 print("Waiting till",triggerTime, "for calendar update.")
 
 while True:
@@ -111,4 +113,4 @@ while True:
         print("Checking at " + time.strftime('%H:%M'))
         main()
         print("--- Sleeping a bit")
-        time.sleep(86300)
+        time.sleep(86395)
